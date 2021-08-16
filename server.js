@@ -37,7 +37,10 @@ mongoose.connect(MONGOOSE_URL, {
     .catch((error) => console.error(error));
 
 io.on('connection', (socket) => {
+    console.log(`Connected to frontend!`);
     socket.on('get-document', async (DocId) => {
+
+        console.log(`DocId: ${DocId}`);
         const doc = await findOrCreateDocument(DocId);
 
         socket.join(DocId);

@@ -68,8 +68,9 @@ io.on('connection', (socket) => {
 
 
     socket.on('join-room', (roomId, userId, userName) => {
+
         socket.join(roomId)
-        socket.to(roomId).emit('user-connected', userId, userName)
+        socket.to(roomId).emit('user-connected', userId)
 
         socket.on('toggled', (userId, video, audio) => {
             console.log(userId, video, audio);

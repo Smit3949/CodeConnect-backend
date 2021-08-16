@@ -50,6 +50,7 @@ io.on('connection', (socket) => {
 
 
         socket.on('changes', delta => {
+            console.log(`changes: ${delta}`);
             socket.broadcast.to(DocId).emit("receive-changes", delta);
         });
 
@@ -59,7 +60,7 @@ io.on('connection', (socket) => {
         });
 
         socket.on('save-document', async (data) => {
-            console.log(data);
+            console.log("save-documents", data);
             Doc.findByIdAndUpdate({ '_id': DocId }, { 'html': data.html, 'css': data.css, 'js': data.js, 'python': data.python, 'cpp': data.cpp, 'java': data.java }).then((d) => {
                 // console.log(d);
             })
@@ -71,7 +72,7 @@ io.on('connection', (socket) => {
 
 
     socket.on('join-room', (roomId, userId, userName) => {
-
+        console.log("User Joined:", roomId, userId);
         socket.join(roomId)
         socket.to(roomId).emit('user-connected', userId)
 
@@ -81,6 +82,7 @@ io.on('connection', (socket) => {
         });
 
         socket.on('disconnect', () => {
+            console.log("disconnected:", roomId, userId);
             socket.to(roomId).emit('user-disconnected', userId)
         });
     });

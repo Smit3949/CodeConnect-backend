@@ -5,6 +5,8 @@ const cors = require('cors');
 const app = express();
 const server = require('http').Server(app);
 const PORT = process.env.PORT || 3001;
+const FRONTEND_ORIGIN = process.env.FRONTEND_ORIGIN
+const MONGOOSE_URL = process.env.MONGOOSE_URL
 const { v4: uuidV4 } = require('uuid');
 const { PeerServer } = require('peer');
 app.use(cors())
@@ -13,7 +15,7 @@ app.use(bodyParser.json());
 
 const io = require('socket.io')(server, {
     cors: {
-        origin: 'http://localhost:3000',
+        origin: FRONTEND_ORIGIN,
     }
 });
 
@@ -25,7 +27,7 @@ const mongoose = require('mongoose');
 const Doc = require('./models/Doc');
 
 
-mongoose.connect('mongodb+srv://smit:smit@cluster0.haxvy.mongodb.net/Docs?retryWrites=true&w=majority', {
+mongoose.connect(MONGOOSE_URL, {
     useNewUrlParser: true,
     useUnifiedTopology: true,
     useFindAndModify: false,
@@ -92,4 +94,7 @@ var findOrCreateDocument = async (id) => {
     return await Doc.create({ _id: id, html: "", css: "", js: "", python: "", java: "", cpp: "" });
 };
 
-server.listen(PORT, () => { console.log(`Listening to ${PORT}`); })
+server.listen(PORT, () => {
+    console.log(`Express Server Listening to ${PORT}`);
+    console.log(`Socket Listening to ${FRONTEND_ORIGIN}`);
+})

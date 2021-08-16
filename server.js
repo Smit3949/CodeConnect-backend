@@ -21,7 +21,7 @@ const io = require('socket.io')(server, {
 
 const peerServer = PeerServer({ port: 9000, path: '/' });
 
-peerServer.on('connection', (client) => { console.log(client.id); });
+peerServer.on('connection', (client) => { console.log("Client Connected: ", client.id); });
 
 const mongoose = require('mongoose');
 const Doc = require('./models/Doc');
@@ -86,7 +86,6 @@ io.on('connection', (socket) => {
             socket.to(roomId).emit('user-disconnected', userId)
         });
     });
-    console.log("connected");
 });
 
 

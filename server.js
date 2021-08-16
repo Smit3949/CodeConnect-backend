@@ -20,7 +20,7 @@ const io = require('socket.io')(server, {
 });
 
 const peerServer = PeerServer({ port: 9000, path: '/' }, (exp) => {
-    console.log("Peerjs Server Running: ", exp);
+    console.log("Peerjs Server Running: " + exp.address().port);
 });
 
 peerServer.on('connection', (client) => { console.log("Client Connected: ", client.id); });

@@ -4,13 +4,14 @@ const bodyParser = require('body-parser');
 const cors = require('cors');
 const app = express();
 const server = require('http').Server(app);
+const PORT = process.env.PORT || 3000;
 const { v4: uuidV4 } = require('uuid');
 const { PeerServer } = require('peer');
 app.use(cors())
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json());
 
-const io = require('socket.io')(server , {
+const io = require('socket.io')(server, {
     cors: {
         origin: 'http://localhost:3000',
     }
@@ -18,7 +19,7 @@ const io = require('socket.io')(server , {
 
 const peerServer = PeerServer({ port: 9000, path: '/' });
 
-peerServer.on('connection', (client) => { console.log(client.id);});
+peerServer.on('connection', (client) => { console.log(client.id); });
 
 const mongoose = require('mongoose');
 const Doc = require('./models/Doc');
@@ -30,10 +31,10 @@ mongoose.connect('mongodb+srv://smit:smit@cluster0.haxvy.mongodb.net/Docs?retryW
     useFindAndModify: false,
     useCreateIndex: true
 })
-.then(()=> console.log('connected to mongodb'))
-.catch((error) => console.error(error));
+    .then(() => console.log('connected to mongodb'))
+    .catch((error) => console.error(error));
 
-io.on('connection', (socket) =>  {
+io.on('connection', (socket) => {
     socket.on('get-document', async (DocId) => {
         const doc = await findOrCreateDocument(DocId);
 
@@ -54,17 +55,17 @@ io.on('connection', (socket) =>  {
 
         socket.on('save-document', async (data) => {
             console.log(data);
-            Doc.findByIdAndUpdate({'_id': DocId}, { 'html': data.html, 'css': data.css, 'js': data.js, 'python': data.python, 'cpp': data.cpp, 'java': data.java }).then((d) => {
-               // console.log(d);
-            })  
-            .catch(err => { 
-                console.error(err);
+            Doc.findByIdAndUpdate({ '_id': DocId }, { 'html': data.html, 'css': data.css, 'js': data.js, 'python': data.python, 'cpp': data.cpp, 'java': data.java }).then((d) => {
+                // console.log(d);
             })
+                .catch(err => {
+                    console.error(err);
+                })
         })
     });
 
 
-    socket.on('join-room', (roomId, userId, userName)                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            => {
+    socket.on('join-room', (roomId, userId, userName) => {
         socket.join(roomId)
         socket.to(roomId).emit('user-connected', userId, userName)
 
@@ -83,12 +84,12 @@ io.on('connection', (socket) =>  {
 
 
 var findOrCreateDocument = async (id) => {
-    if(id === null){
+    if (id === null) {
         return;
     }
     const document = await Doc.findById(id);
-    if(document) return document;
-    return await Doc.create({_id: id, html:"",css:"",js:"",python:"",java:"",cpp:""}); 
+    if (document) return document;
+    return await Doc.create({ _id: id, html: "", css: "", js: "", python: "", java: "", cpp: "" });
 };
 
-server.listen(3001, () => {console.log('3001');})
+server.listen(PORT, () => { console.log(`Listening to ${PORT}`); })

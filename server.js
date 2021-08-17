@@ -1,6 +1,6 @@
 require('dotenv').config({ path: '.env' });
 const express = require('express');
-const bodyParser = require('body-parser');
+const fetch = require('node-fetch');
 const cors = require('cors');
 const app = express();
 const server = require('http').Server(app);
@@ -9,9 +9,12 @@ const FRONTEND_ORIGIN = process.env.FRONTEND_ORIGIN
 const MONGOOSE_URL = process.env.MONGOOSE_URL
 const { PeerServer } = require('peer');
 app.use(cors())
-app.use(bodyParser.urlencoded({ extended: false }));
-app.use(bodyParser.json());
-const axios = require('axios');
+app.use(express.urlencoded())
+app.use(express.json())
+
+app.get('/', (req, res) => {
+    res.send("CodeColab Backend!")
+});
 
 const io = require('socket.io')(server, {
     cors: {
@@ -39,27 +42,49 @@ mongoose.connect(MONGOOSE_URL, {
     .catch((error) => console.error(error));
 
 app.get('/runcode', (req, res) => {
-    var url = req.params.url;
-    axios.get(url).then((result) => {
-        res.send(result);
+    var url = req.query.url;
+    const headers = {
+        'Content-Type': 'application/json',
+        'client-secret': process.env.REACT_APP_HACKEREARTH_SECRET
+    }
+    fetch(url, {
+        method: 'get',
+        headers,
     })
-        .catch(err => res.send(err));
+        .then(res => res.json())
+        .then(json => {
+            res.send(json)
+        }).catch((err) => {
+            res.send(err)
+        });
 });
 
 app.post('/runcode', (req, res) => {
-    var data = req.body.data;
-    axios.get(url, data).then((result) => {
-        res.send(result);
+    // get post data from request
+
+    var data = req.body;
+
+    const url = "https://api.hackerearth.com/v4/partner/code-evaluation/submissions/";
+    fetch(url, {
+        method: 'post',
+        body: JSON.stringify(data),
+        headers: {
+            'Content-Type': 'application/json',
+            'client-secret': process.env.REACT_APP_HACKEREARTH_SECRET
+        },
     })
-        .catch(err => res.send(err));
+        .then(res => res.json())
+        .then(json => {
+            res.send(json);
+        }).catch((err) => {
+            res.send(err)
+        });
 });
 
 
 io.on('connection', (socket) => {
     console.log(`Connected to frontend!`);
     socket.on('get-document', async (DocId) => {
-
-        console.log(`DocId: ${DocId}`);
         const doc = await findOrCreateDocument(DocId);
 
         socket.join(DocId);
@@ -69,19 +94,15 @@ io.on('connection', (socket) => {
 
 
         socket.on('changes', delta => {
-            console.log(`changes: ${delta}`);
             socket.broadcast.to(DocId).emit("receive-changes", delta);
         });
 
         socket.on('drawing', (data) => {
-            console.log(data);
             socket.broadcast.emit('drawing', data)
         });
 
         socket.on('save-document', async (data) => {
-            console.log("save-documents", data);
             Doc.findByIdAndUpdate({ '_id': DocId }, { 'html': data.html, 'css': data.css, 'js': data.js, 'python': data.python, 'cpp': data.cpp, 'java': data.java }).then((d) => {
-                // console.log(d);
             })
                 .catch(err => {
                     console.error(err);
@@ -91,17 +112,14 @@ io.on('connection', (socket) => {
 
 
     socket.on('join-room', (roomId, userId, userName) => {
-        console.log("User Joined:", roomId, userId);
         socket.join(roomId)
         socket.to(roomId).emit('user-connected', userId)
 
         socket.on('toggled', (userId, video, audio) => {
-            console.log(userId, video, audio);
             socket.to(roomId).emit('received-toggled-events', userId, video, audio);
         });
 
         socket.on('disconnect', () => {
-            console.log("disconnected:", roomId, userId);
             socket.to(roomId).emit('user-disconnected', userId)
         });
     });

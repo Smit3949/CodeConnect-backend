@@ -7,7 +7,6 @@ const server = require('http').Server(app);
 const PORT = process.env.PORT || 3001;
 const FRONTEND_ORIGIN = process.env.FRONTEND_ORIGIN
 const MONGOOSE_URL = process.env.MONGOOSE_URL
-const { v4: uuidV4 } = require('uuid');
 const { PeerServer } = require('peer');
 app.use(cors())
 app.use(bodyParser.urlencoded({ extended: false }));

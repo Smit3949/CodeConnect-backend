@@ -11,6 +11,7 @@ const { PeerServer } = require('peer');
 app.use(cors())
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json());
+const axios = require('axios');
 
 const io = require('socket.io')(server, {
     cors: {
@@ -36,6 +37,23 @@ mongoose.connect(MONGOOSE_URL, {
 })
     .then(() => console.log('connected to mongodb'))
     .catch((error) => console.error(error));
+
+app.get('/runcode', (req, res) => {
+    var url = req.params.url;
+    axios.get(url).then((result) => {
+        res.send(result);
+    })
+        .catch(err => res.send(err));
+});
+
+app.post('/runcode', (req, res) => {
+    var data = req.body.data;
+    axios.get(url, data).then((result) => {
+        res.send(result);
+    })
+        .catch(err => res.send(err));
+});
+
 
 io.on('connection', (socket) => {
     console.log(`Connected to frontend!`);

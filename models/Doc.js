@@ -9,6 +9,11 @@ const Doc = new Schema({
     python: String,
     cpp: String,
     java: String,
+    js: String,
+    pascal: String,
+    perl: String,
+    php: String,
+    ruby: String,
     input: String,
     output: String
 });

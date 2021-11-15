@@ -4,7 +4,7 @@ const fetch = require('node-fetch');
 const cors = require('cors');
 const app = express();
 const server = require('http').Server(app);
-const PORT = process.env.PORT || 3001;
+const PORT = process.env.PORT || 3002;
 const FRONTEND_ORIGIN = process.env.FRONTEND_ORIGIN
 const MONGOOSE_URL = process.env.MONGOOSE_URL
 const { PeerServer } = require('peer');
@@ -22,7 +22,7 @@ const io = require('socket.io')(server, {
     }
 });
 
-const peerServer = PeerServer({ port: 9000, path: '/' }, (exp) => {
+const peerServer = PeerServer({ port: 9002, path: '/' }, (exp) => {
     console.log("Peerjs Server Running: " + exp.address().port);
 });
 
@@ -92,10 +92,11 @@ io.on('connection', (socket) => {
         socket.join(DocId);
 
 
-        socket.emit('load-document', doc);
+        socket.emit('load-document', doc)        ;
 
 
         socket.on('changes', delta => {
+            
             socket.broadcast.to(DocId).emit("receive-changes", delta);
         });
 
@@ -104,7 +105,7 @@ io.on('connection', (socket) => {
         });
 
         socket.on('save-document', async (data) => {
-            Doc.findByIdAndUpdate({ '_id': DocId }, { 'html': data.html, 'css': data.css, 'js': data.js, 'python': data.python, 'cpp': data.cpp, 'java': data.java, 'input': data.input, 'output': data.output }).then((d) => {
+            Doc.findByIdAndUpdate({ '_id': DocId }, { 'html': data.html, 'css': data.css, 'js': data.js, 'pascal': data.pascal, 'perl': data.perl, 'php': data.php, 'ruby': data.ruby, 'python': data.python, 'cpp': data.cpp, 'java': data.java, 'input': data.input, 'output': data.output }).then((d) => {
             })
                 .catch(err => {
                     console.error(err);
@@ -135,7 +136,7 @@ var findOrCreateDocument = async (id) => {
     }
     const document = await Doc.findById(id);
     if (document) return document;
-    return await Doc.create({ _id: id, html: "", css: "", js: "", python: "", java: "", cpp: "", input: "", output: "" });
+    return await Doc.create({ _id: id, html: "", css: "", js: "", python: "", java: "", cpp: "", input: "", output: "", pascal: "", perl: "", php: "", ruby: "" });
 };
 
 server.listen(PORT, () => {

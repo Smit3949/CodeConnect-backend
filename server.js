@@ -108,6 +108,11 @@ io.on('connection', (socket) => {
                     console.error(err);
                 })
         })
+
+        socket.on('pencil-color-change', color => {
+            console.log(color);
+            socket.broadcast.to(DocId).emit("pencil-color-change", color);
+        })
     });
 
 

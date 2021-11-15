@@ -102,7 +102,7 @@ io.on('connection', (socket) => {
         });
 
         socket.on('save-document', async (data) => {
-            Doc.findByIdAndUpdate({ '_id': DocId }, { 'html': data.html, 'css': data.css, 'js': data.js, 'python': data.python, 'cpp': data.cpp, 'java': data.java }).then((d) => {
+            Doc.findByIdAndUpdate({ '_id': DocId }, { 'html': data.html, 'css': data.css, 'js': data.js, 'python': data.python, 'cpp': data.cpp, 'java': data.java, 'input': data.input, 'output': data.output }).then((d) => {
             })
                 .catch(err => {
                     console.error(err);
@@ -133,7 +133,7 @@ var findOrCreateDocument = async (id) => {
     }
     const document = await Doc.findById(id);
     if (document) return document;
-    return await Doc.create({ _id: id, html: "", css: "", js: "", python: "", java: "", cpp: "" });
+    return await Doc.create({ _id: id, html: "", css: "", js: "", python: "", java: "", cpp: "", input: "", output: "" });
 };
 
 server.listen(PORT, () => {

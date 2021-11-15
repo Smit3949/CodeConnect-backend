@@ -8,7 +8,9 @@ const Doc = new Schema({
     js: String,
     python: String,
     cpp: String,
-    java: String
+    java: String,
+    input: String,
+    output: String
 });
 
 module.exports = model('Doc', Doc);
